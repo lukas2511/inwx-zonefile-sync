@@ -51,13 +51,14 @@ def dns_item_to_record(dataset, item, dnsorigin, key):
 	return record
 
 def sync_zone(inwx_conn, origin, zone):
-	print(origin, zone)
+	print(origin)
 
 	dnsorigin = dns.name.from_text(origin, origin=dns.name.empty)
 
-	checkRet = inwx_conn.nameserver.list({'domain': origin, 'pagelimit': 999})
+	# create zone
+	checkRet = inwx_conn.nameserver.list({'domain': origin})
 	if not checkRet['resData']['domains']:
-		print("+ Creating a domain in the nameserver for %s" % origin)
+		print(" + Creating a new zone for %s" % origin)
 		inwx_conn.nameserver.create({'domain': origin, 'type': 'MASTER', 'ns': NS})
 
 	apizone = inwx_conn.nameserver.info({'domain': origin})['resData']['record']
@@ -69,7 +70,7 @@ def sync_zone(inwx_conn, origin, zone):
 		if record['type'] == 'NS' and name == '@':  # do not touch NS records on root of zone
 			continue
 		elif not dns.name.from_text(name, origin=dns.name.empty) in zone:
-			print("+ Deleting %s from %s" % (name, origin))
+			print(" + Deleting record from %s (%r)" % (origin, record))
 			inwx_conn.nameserver.deleteRecord({'id': record['id']})
 			continue
 		elif record['type'] not in ['A', 'AAAA', 'MX', 'SRV', 'TXT', 'CNAME', 'NS']:
@@ -101,7 +102,7 @@ def sync_zone(inwx_conn, origin, zone):
 				break
 
 		if not found:
-			print("+ Deleting record from %s (%r)" % (origin, record))
+			print(" + Deleting record from %s (%r)" % (origin, record))
 			inwx_conn.nameserver.deleteRecord({'id': record['id']})
 
 	# create new entries from zonefile
@@ -128,7 +129,7 @@ def sync_zone(inwx_conn, origin, zone):
 						break
 
 				if not found:
-					print("+ Creating record on %s (%r)" % (origin, tmprecord))
+					print(" + Creating record on %s (%r)" % (origin, tmprecord))
 					tmprecord['domain'] = origin
 					inwx_conn.nameserver.createRecord(tmprecord)
 
@@ -136,8 +137,6 @@ def main():
 	api_url, username, password, shared_secret = inwx.configuration.get_account_data(True, config_section='live')
 	inwx_conn = inwx.inwx.domrobot(api_url, False)
 	loginRet = inwx_conn.account.login({'lang': 'en', 'user': username, 'pass': password})
-
-	print(loginRet)
 
 	if 'tfa' in loginRet['resData'] and loginRet['resData']['tfa'] == 'GOOGLE-AUTH':
 		loginRet = inwx_conn.account.unlock({'tan': inwx.inwx.getOTP(shared_secret)})
