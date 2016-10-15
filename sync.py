@@ -145,8 +145,8 @@ def sync_zone(inwx_conn, origin, zone):
 	zonesoa_rname = dns_name_to_text(list(dataset for dataset in zone['@'].rdatasets if dataset.rdtype == dns.rdatatype.SOA)[0].items[0].rname, dnsorigin)
 
 	if split_apizonesoa[0] != NS[0] or split_apizonesoa[1] != zonesoa_rname:
-		print(" + Updating SOA record on %s (%r)" % (origin, apizonesoa))
 		apizonesoa['content'] = "%s %s %s" % (NS[0], zonesoa_rname, split_apizonesoa[2])
+		print(" + Updating SOA record on %s (%r)" % (origin, apizonesoa))
 		inwx_conn.nameserver.updateRecord(apizonesoa)
 
 def main():
