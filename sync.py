@@ -142,7 +142,7 @@ def sync_zone(inwx_conn, origin, zone):
 	# update soa
 	apizonesoa = list(record for record in apizone if record['name'] == origin and record['type'] == 'SOA')[0]
 	split_apizonesoa = apizonesoa['content'].split()
-	zonesoa_rname = dns_name_to_text(list(dataset for dataset in zone['@'].rdatasets if dataset.rdtype == dns.rdatatype.SOA)[0].items[0].rname, dnsorigin).replace('.', '@', 1)
+	zonesoa_rname = dns_name_to_text(list(dataset for dataset in zone['@'].rdatasets if dataset.rdtype == dns.rdatatype.SOA)[0].items[0].rname, dnsorigin)
 
 	if split_apizonesoa[0] != NS[0] or split_apizonesoa[1] != zonesoa_rname:
 		print(" + Updating SOA record on %s (%r)" % (origin, apizonesoa))
