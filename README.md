@@ -6,5 +6,4 @@
 - Run `python3 sync.py`
 - Done.
 
-Keep in mind that SOA records and NS records on the root of the zone are completely ignored (making it easy to copy over old files),
-and that INWXs restrictions are in place (e.g. minimum ttl of 300 seconds).
+Keep in mind that NS records on the root of the zone are completely ignored (making it easy to copy over old files), for SOA records only the RNAME gets updated, and INWXs restrictions are in place (e.g. minimum ttl of 300 seconds).
